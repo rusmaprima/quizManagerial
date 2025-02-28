@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .quiz-container {
+            max-width: 600px;
+            background: white;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #333;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .options button {
+            display: block;
+            width: 90%;
+            padding: 12px;
+            margin: 8px auto;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .options button:nth-child(1) { background-color: #ff5733; }
+        .options button:nth-child(2) { background-color: #33c4ff; }
+        .options button:nth-child(3) { background-color: #33ff57; }
+        .options button:nth-child(4) { background-color: #ff33a8; }
+        .options button:hover {
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+        #score {
+            font-size: 22px;
+            margin-top: 20px;
+            color: #333;
+        }
+        .illustration {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        #timer {
+            font-size: 20px;
+            font-weight: bold;
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Management Quiz</h1>
+        <img id="quiz-image" class="illustration" src="https://res.cloudinary.com/highereducation/image/upload/w_353,h_198,c_fill,f_auto,fl_lossy,q_auto/v1/TheBestSchools.org/university-of-the-people.jpg" alt="Quiz Illustration">
+        <div id="question-container"></div>
+        <div id="timer">Time left: <span id="time-left">10</span>s</div>
+        <button id="next-btn" class="hidden">Next Question</button>
+        <h2 id="score" class="hidden"></h2>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "___________ is the process of authorizing an individual to think, behave, act, and control work and decision-making in autonomous ways.",
+                options: ["Empowering", "Controlling", "Directing", "Leading"],
+                answer: "Empowering"
+            },
+            {
+                question: "The three informational roles assumed by a manager are primarily concerned with providing information outside the organization.",
+                options: ["True", "False"],
+                answer: "False"
+            },
+            {
+                question: "Name the managerial role for the efficiency and effectiveness of a particular department, such as human resources or sales.",
+                options: ["Functional managers", "Team managers", "Staff managers", "Project managers"],
+                answer: "Functional managers"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        const questionContainer = document.getElementById("question-container");
+        const nextButton = document.getElementById("next-btn");
+        const scoreDisplay = document.getElementById("score");
+        const timeLeftDisplay = document.getElementById("time-left");
+
+        function loadQuestion() {
+            clearInterval(timer);
+            questionContainer.innerHTML = "";
+            const questionObj = quizData[currentQuestionIndex];
+            const questionElement = document.createElement("div");
+            questionElement.classList.add("question");
+            questionElement.textContent = questionObj.question;
+            questionContainer.appendChild(questionElement);
+
+            const optionsContainer = document.createElement("div");
+            optionsContainer.classList.add("options");
+            
+            questionObj.options.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => checkAnswer(button, option, questionObj.answer);
+                optionsContainer.appendChild(button);
+            });
+            questionContainer.appendChild(optionsContainer);
+            
+            startTimer();
+        }
+
+        function startTimer() {
+            let timeLeft = 10;
+            timeLeftDisplay.textContent = timeLeft;
+            timer = setInterval(() => {
+                timeLeft--;
+                timeLeftDisplay.textContent = timeLeft;
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(button, selected, correct) {
+            clearInterval(timer);
+            if (selected === correct) {
+                button.style.backgroundColor = "#28a745";
+                score++;
+            } else {
+                button.style.backgroundColor = "#dc3545";
+            }
+            setTimeout(() => {
+                nextButton.classList.remove("hidden");
+            }, 500);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+                nextButton.classList.add("hidden");
+            } else {
+                questionContainer.innerHTML = "<h2>Quiz Completed!</h2>";
+                scoreDisplay.textContent = "Your score: " + score + "/" + quizData.length;
+                scoreDisplay.classList.remove("hidden");
+                nextButton.classList.add("hidden");
+            }
+        }
+
+        nextButton.addEventListener("click", nextQuestion);
+        loadQuestion();
+    </script>
+</body>
+</html>
